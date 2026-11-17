@@ -1,6 +1,7 @@
 {
   "name": "tula",
   "version": "0.1.0",
+  "license": "MIT",
   "packageManager": "pnpm@10.33.0",
   "type": "module",
   "main": "./out/main/index.js",
@@ -47,10 +48,17 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["arm64", "x64"]
+          "arch": [
+            "arm64",
+            "x64"
+          ]
         }
       ],
       "category": "public.app-category.photography"
+    },
+    "publish": {
+      "provider": "github",
+      "releaseType": "release"
     }
   },
   "dependencies": {
@@ -78,7 +86,10 @@
   },
   "pnpm": {
     "supportedArchitectures": {
-      "cpu": ["arm64", "x64"]
+      "cpu": [
+        "arm64",
+        "x64"
+      ]
     },
     "onlyBuiltDependencies": [
       "electron",
