@@ -8,11 +8,35 @@ import { PresetsView } from './views/PresetsView'
 import { QueueView } from './views/QueueView'
 import { SettingsView } from './views/SettingsView'
 
+function selectAllInPlace() {
+  const target = document.activeElement
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    target.select()
+    return
+  }
+  useApp.getState().selectAll()
+}
+
 const NAV: { id: View; label: string; icon: ReactElement }[] = [
   { id: 'queue', label: '队列', icon: <Images /> },
   { id: 'presets', label: '预设', icon: <SlidersHorizontal /> },
   { id: 'settings', label: '设置', icon: <Settings /> }
 ]
+
+function Toast() {
+  const notice = useApp((state) => state.notice)
+  const [text, setText] = useState('')
+
+  useEffect(() => {
+    if (notice) setText(notice)
+  }, [notice])
+
+  return (
+    <p className={notice ? 'toast is-open' : 'toast'} role="status" aria-live="polite" aria-hidden={notice ? undefined : true}>
+      {text}
+    </p>
+  )
+}
 
 export function App() {
   const ready = useApp((state) => state.ready)
@@ -51,18 +75,25 @@ export function App() {
       if (action === 'add-folder') void store.addFromDialog('folder')
       if (action === 'start') void store.start()
       if (action === 'toggle-pause') void store.togglePause()
+      if (action === 'select-all') selectAllInPlace()
     })
     const onKey = (event: KeyboardEvent) => {
       if (document.querySelector('[role="dialog"]')) return
       const target = event.target
       if (target instanceof HTMLElement && target.closest('input, textarea, select')) return
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'a' && !event.shiftKey && !event.altKey) {
+        if (useApp.getState().view !== 'queue') return
+        event.preventDefault()
+        useApp.getState().selectAll()
+        return
+      }
       if (event.key === 'Backspace' || event.key === 'Delete') {
         event.preventDefault()
         void useApp.getState().removeSelected()
       }
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault()
-        useApp.getState().moveSelection(event.key === 'ArrowDown' ? 1 : -1)
+        useApp.getState().moveSelection(event.key === 'ArrowDown' ? 1 : -1, event.shiftKey)
       }
     }
     window.addEventListener('keydown', onKey)
@@ -166,9 +197,11 @@ export function App() {
             </div>
           ) : null}
         </header>
-        <div className="meter" aria-hidden="true">
-          <span style={{ transform: `scaleX(${meter})` }} />
-        </div>
+        {view === 'queue' ? (
+          <div className="meter" aria-hidden="true">
+            <span style={{ transform: `scaleX(${meter})` }} />
+          </div>
+        ) : null}
         <div className="stage">
           <div className="stage-view">
             {view === 'queue' ? <QueueView /> : null}
@@ -177,6 +210,7 @@ export function App() {
           </div>
         </div>
       </main>
+      <Toast />
       {dragging ? (
         <div className="drop-veil">
           <strong>松开以加入队列</strong>

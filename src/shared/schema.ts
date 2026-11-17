@@ -4,8 +4,8 @@ import type { Settings } from './types'
 
 export const QUALITY_MIN = 30
 export const QUALITY_MAX = 100
-export const LONG_EDGE_MIN = 320
-export const LONG_EDGE_MAX = 12000
+export const LONG_EDGE_MIN = 1
+export const LONG_EDGE_MAX = 16384
 export const PNG_LOSSLESS_FROM = 90
 export const CONCURRENCY_MIN = 1
 export const CONCURRENCY_MAX = 10

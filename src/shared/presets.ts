@@ -26,22 +26,6 @@ export const builtinPresets: Preset[] = [
     format: 'webp',
     quality: 62,
     resize: { mode: 'long-edge', longEdge: 1920 }
-  },
-  {
-    id: 'builtin-original',
-    name: '原格式压缩',
-    builtin: true,
-    format: 'original',
-    quality: 80,
-    resize: { mode: 'none' }
-  },
-  {
-    id: 'builtin-2048',
-    name: '长边 2048',
-    builtin: true,
-    format: 'original',
-    quality: 82,
-    resize: { mode: 'long-edge', longEdge: 2048 }
   }
 ]
 

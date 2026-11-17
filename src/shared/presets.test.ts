@@ -15,9 +15,9 @@ describe('builtin presets', () => {
   })
 
   it('describes the long-edge preset', () => {
-    const preset = builtinPresets.find((item) => item.id === 'builtin-2048')
+    const preset = builtinPresets.find((item) => item.id === 'builtin-web-balanced')
     expect(preset).toBeDefined()
-    expect(describePreset(preset!)).toContain('2048')
+    expect(describePreset(preset!)).toContain('2560')
   })
 })
 

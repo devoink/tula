@@ -3,8 +3,20 @@ import { describePreset, uniquePresetName } from '../../../shared/presets'
 import { LONG_EDGE_MAX, LONG_EDGE_MIN, presetSchema, QUALITY_MAX, QUALITY_MIN } from '../../../shared/schema'
 import type { OutputFormat, Preset, Resize } from '../../../shared/types'
 import { SegmentedControl } from '../components/SegmentedControl'
+import { SelectField } from '../components/SelectField'
 import { Copy, Plus } from 'lucide-react'
 import { useApp } from '../store'
+
+function parseEdge(raw: string): number | null {
+  if (!/^\d+$/.test(raw)) return null
+  const value = Number(raw)
+  if (value < LONG_EDGE_MIN || value > LONG_EDGE_MAX) return null
+  return value
+}
+
+function samePreset(a: Preset, b: Preset): boolean {
+  return a.name === b.name && a.format === b.format && a.quality === b.quality && JSON.stringify(a.resize) === JSON.stringify(b.resize)
+}
 
 function resizeEdge(resize: Resize): number | null {
   if (resize.mode === 'long-edge') return resize.longEdge
@@ -141,32 +153,62 @@ function PresetEditor({
 }) {
   const [draft, setDraft] = useState(preset)
   const [error, setError] = useState('')
-  const dirty = useRef(false)
+  const [saving, setSaving] = useState(false)
+  const draftRef = useRef(draft)
+  const presetRef = useRef(preset)
+  draftRef.current = draft
+  presetRef.current = preset
+  const changed = !preset.builtin && !samePreset(draft, preset)
 
   useEffect(() => {
-    if (preset.builtin || !dirty.current) return
+    return () => {
+      const current = presetRef.current
+      if (current.builtin) return
+      const parsed = presetSchema.safeParse(draftRef.current)
+      if (!parsed.success || samePreset(parsed.data, current)) return
+      void onSave(parsed.data).catch(() => undefined)
+    }
+  }, [onSave])
+
+  function update(next: Preset) {
+    setError('')
+    setDraft(next)
+  }
+
+  async function save() {
+    if (draft.resize.mode !== 'none' && parseEdge(edgeText ?? String(edge)) === null) {
+      setError(`尺寸需在 ${LONG_EDGE_MIN} 到 ${LONG_EDGE_MAX} 之间`)
+      return
+    }
     const parsed = presetSchema.safeParse(draft)
     if (!parsed.success) {
       setError('请检查名称、质量和尺寸')
       return
     }
-    setError('')
-    const handle = window.setTimeout(() => {
-      void onSave(parsed.data).catch((reason: unknown) => {
-        setError(reason instanceof Error ? reason.message : '没有保存')
-      })
-    }, 320)
-    return () => window.clearTimeout(handle)
-  }, [draft, onSave, preset.builtin])
-
-  function update(next: Preset) {
-    dirty.current = true
-    setDraft(next)
+    setSaving(true)
+    try {
+      await onSave(parsed.data)
+      setDraft(parsed.data)
+      setError('')
+    } catch (reason: unknown) {
+      setError(reason instanceof Error ? reason.message : '没有保存')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const edgeMemory = useRef(resizeEdge(draft.resize) ?? 2048)
   const edge = resizeEdge(draft.resize) ?? edgeMemory.current
+  const [edgeText, setEdgeText] = useState<string | null>(null)
   const edgeLabel = draft.resize.mode === 'short-edge' ? '短边' : '长边'
+  const edgeInvalid = draft.resize.mode !== 'none' && edgeText !== null && parseEdge(edgeText) === null
+
+  function commitEdge(raw: string) {
+    const value = parseEdge(raw)
+    if (value === null || draft.resize.mode === 'none') return false
+    if (resizeEdge(draft.resize) !== value) setResize(draft.resize.mode, value)
+    return true
+  }
 
   function setResize(mode: 'none' | 'long-edge' | 'short-edge', edgeValue = edgeMemory.current) {
     if (mode !== 'none') edgeMemory.current = edgeValue
@@ -196,9 +238,8 @@ function PresetEditor({
       />
 
       <label className="field-label" htmlFor="preset-format">输出格式</label>
-      <select
+      <SelectField
         id="preset-format"
-        className="field"
         value={draft.format}
         disabled={preset.builtin}
         onChange={(event) => update({ ...draft, format: event.target.value as OutputFormat })}
@@ -207,7 +248,7 @@ function PresetEditor({
         <option value="jpeg">JPEG</option>
         <option value="webp">WebP</option>
         <option value="png">PNG</option>
-      </select>
+      </SelectField>
 
       <div className="slider-row">
         <label className="field-label" htmlFor="preset-quality">质量</label>
@@ -250,21 +291,37 @@ function PresetEditor({
                 <span className="dim-arrow dim-arrow-a" />
                 <span className="dim-arrow dim-arrow-b" />
               </span>
-              <input
-                className="field resize-number"
-                type="number"
-                aria-label={edgeLabel}
-                min={LONG_EDGE_MIN}
-                max={LONG_EDGE_MAX}
-                value={edge}
-                disabled={preset.builtin}
-                onChange={(event) => {
-                  if (draft.resize.mode === 'none') return
-                  const value = Number(event.target.value)
-                  if (!Number.isInteger(value)) return
-                  setResize(draft.resize.mode, value)
-                }}
-              />
+              <div className="resize-number">
+                <input
+                  className="field"
+                  type="text"
+                  inputMode="numeric"
+                  aria-label={edgeLabel}
+                  value={edgeText ?? String(edge)}
+                  disabled={preset.builtin}
+                  onChange={(event) => {
+                    const raw = event.target.value
+                    if (raw !== '' && !/^\d+$/.test(raw)) {
+                      event.target.value = edgeText ?? String(edge)
+                      return
+                    }
+                    setEdgeText(raw)
+                    setError('')
+                    commitEdge(raw)
+                  }}
+                  onBlur={(event) => {
+                    const raw = event.currentTarget.value.trim()
+                    if (commitEdge(raw)) {
+                      setEdgeText(String(parseEdge(raw)))
+                      setError('')
+                      return
+                    }
+                    setEdgeText(raw)
+                    setError(`尺寸需在 ${LONG_EDGE_MIN} 到 ${LONG_EDGE_MAX} 之间`)
+                  }}
+                />
+                <span className="resize-unit">像素</span>
+              </div>
           </div>
         </>
       )}
@@ -279,6 +336,9 @@ function PresetEditor({
         <button type="button" className="ghost with-icon" onClick={onDuplicate}><Copy />复制为自定义</button>
         {preset.builtin ? null : (
           <button type="button" className="danger" onClick={() => onConfirm(true)}>删除预设</button>
+        )}
+        {preset.builtin ? null : (
+          <button type="button" className="primary" disabled={!changed || saving || edgeInvalid} onClick={() => void save()}>保存</button>
         )}
       </div>
 

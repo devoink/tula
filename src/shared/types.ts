@@ -61,7 +61,7 @@ export type CompressRequest = {
 
 export type JobStatus = 'queued' | 'running' | 'done' | 'failed' | 'cancelled'
 
-export type MenuAction = 'add-files' | 'add-folder' | 'start' | 'toggle-pause' | 'settings'
+export type MenuAction = 'add-files' | 'add-folder' | 'start' | 'toggle-pause' | 'settings' | 'select-all'
 
 export type CompressEvent =
   | { type: 'started'; id: string }

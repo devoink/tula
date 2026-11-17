@@ -47,7 +47,7 @@ export function installMenu(): void {
         { role: 'cut', label: '剪切' },
         { role: 'copy', label: '拷贝' },
         { role: 'paste', label: '粘贴' },
-        { role: 'selectAll', label: '全选' }
+        { label: '全选', accelerator: 'CmdOrCtrl+A', click: () => send('select-all') }
       ]
     },
     {
