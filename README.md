@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="package.json"><img alt="version" src="https://img.shields.io/badge/version-0.1.0-blue"></a>
+  <a href="https://github.com/devoink/tula/releases/latest"><img alt="下载" src="https://img.shields.io/github/v/release/devoink/tula?label=%E4%B8%8B%E8%BD%BD"></a>
   <img alt="platform" src="https://img.shields.io/badge/platform-macOS-black">
   <img alt="Electron" src="https://img.shields.io/badge/Electron-45-47848F?logo=electron&logoColor=white">
   <img alt="pnpm" src="https://img.shields.io/badge/pnpm-10-F69220?logo=pnpm&logoColor=white">
@@ -32,16 +33,18 @@
 - 外观跟随系统，或固定为亮色、暗色
 - 同时压缩的张数可调，范围 1–10
 
-## 安装
+## 下载
 
-从发布产物中选择与本机芯片相符的安装包：
+当前版本是 [0.1.0](https://github.com/devoink/tula/releases/tag/v0.1.0)。苹果菜单中打开「关于本机」，Apple 芯片选择 arm64，Intel 选择 x64。
 
-| 文件                       | 架构       |
-| -------------------------- | ---------- |
-| `tula-0.1.0-arm64.dmg` | Apple 芯片 |
-| `tula-0.1.0-x64.dmg`   | Intel      |
+| 芯片       | 安装包                                                                                                                |
+| ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| Apple 芯片 | [tula-0.1.0-arm64.dmg](https://github.com/devoink/tula/releases/download/v0.1.0/tula-0.1.0-arm64.dmg) |
+| Intel      | [tula-0.1.0-x64.dmg](https://github.com/devoink/tula/releases/download/v0.1.0/tula-0.1.0-x64.dmg)     |
 
-安装包没有 Apple 签名。访达中右键安装包或应用，选择「打开」。
+打开 dmg，把图拉Tula 拖进「应用程序」。安装包没有 Apple 签名。首次打开时，在访达中右键应用，选择「打开」。
+
+全部版本见 [Releases](https://github.com/devoink/tula/releases)。
 
 ## 行为
 
