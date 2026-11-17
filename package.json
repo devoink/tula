@@ -42,7 +42,7 @@
     ],
     "mac": {
       "icon": "resources/icon.png",
-      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "artifactName": "tula-${version}-${arch}.${ext}",
       "identity": null,
       "hardenedRuntime": false,
       "gatekeeperAssess": false,
@@ -56,10 +56,6 @@
         }
       ],
       "category": "public.app-category.photography"
-    },
-    "publish": {
-      "provider": "github",
-      "releaseType": "release"
     }
   },
   "dependencies": {

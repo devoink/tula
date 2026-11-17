@@ -20,6 +20,23 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - run: pnpm exec electron-builder --mac --publish always
+      - run: pnpm exec electron-builder --mac --publish never
+      - name: Publish installers
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          notes=$(mktemp)
+          cat > "$notes" <<EOF
+          macOS 安装包。请按芯片选择。
+
+          - \`tula-${version}-arm64.dmg\`：Apple 芯片
+          - \`tula-${version}-x64.dmg\`：Intel
+
+          安装包未签名。访达中右键，选择「打开」。
+          EOF
+          gh release create "v${version}" \
+            "release/tula-${version}-arm64.dmg" \
+            "release/tula-${version}-x64.dmg" \
+            --title "${version}" \
+            --notes-file "$notes"
