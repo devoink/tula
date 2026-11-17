@@ -42,7 +42,13 @@
 | Apple 芯片 | [tula-0.1.0-arm64.dmg](https://github.com/devoink/tula/releases/download/v0.1.0/tula-0.1.0-arm64.dmg) |
 | Intel      | [tula-0.1.0-x64.dmg](https://github.com/devoink/tula/releases/download/v0.1.0/tula-0.1.0-x64.dmg)     |
 
-打开 dmg，把图拉Tula 拖进「应用程序」。安装包没有 Apple 签名。首次打开时，在访达中右键应用，选择「打开」。
+打开 dmg，把图拉Tula 拖进「应用程序」。安装包没有 Apple 签名。从网页下载后，macOS 会提示「已损坏，无法打开」。打开「终端」，输入 `xattr -cr `（末尾保留一个空格），把「应用程序」里的图拉Tula 拖进终端窗口，再按回车。拖进去之后，命令类似：
+
+```bash
+xattr -cr /Applications/图拉Tula.app
+```
+
+这条命令会清除下载时附带的隔离标记。执行后再打开应用。
 
 全部版本见 [Releases](https://github.com/devoink/tula/releases)。
 
