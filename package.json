@@ -1,7 +1,6 @@
 {
   "name": "tula",
   "version": "0.1.0",
-  "private": true,
   "packageManager": "pnpm@10.33.0",
   "type": "module",
   "main": "./out/main/index.js",
@@ -11,7 +10,7 @@
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "dist": "pnpm run build && electron-builder --mac --dir"
+    "dist": "pnpm run build && electron-builder --mac"
   },
   "build": {
     "appId": "local.imagecompress.desktop",
@@ -20,10 +19,21 @@
     "directories": {
       "output": "release"
     },
+    "afterPack": "scripts/after-pack.cjs",
     "files": [
       "out/**/*",
       "package.json",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "!**/node_modules/lucide-react/**",
+      "!**/node_modules/react/**",
+      "!**/node_modules/react-dom/**",
+      "!**/node_modules/scheduler/**",
+      "!**/node_modules/zustand/**",
+      "!**/node_modules/@fontsource/**",
+      "!**/node_modules/@fontsource-variable/**",
+      "!**/node_modules/**/*.map",
+      "!**/node_modules/**/*.d.ts",
+      "!**/node_modules/**/*.d.mts"
     ],
     "asarUnpack": [
       "node_modules/sharp/**",
@@ -35,7 +45,10 @@
       "hardenedRuntime": false,
       "gatekeeperAssess": false,
       "target": [
-        "dir"
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        }
       ],
       "category": "public.app-category.photography"
     }
@@ -64,6 +77,9 @@
     "vitest": "^5.1.0"
   },
   "pnpm": {
+    "supportedArchitectures": {
+      "cpu": ["arm64", "x64"]
+    },
     "onlyBuiltDependencies": [
       "electron",
       "esbuild",
